@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Add type aliases for the [`ciris`](https://github.com/vlovgr/ciris/releases) library, w/ sprout integrations,
 and support for reading `ip4s` types.
 
+### Scala versions
+- add build for Scala `2.13`
+
 ### Dependencies
 - [ciris](https://github.com/vlovgr/ciris/releases) `1.2.1`
 - [ip4s](https://github.com/Comcast/ip4s/releases) `2.0.1`
