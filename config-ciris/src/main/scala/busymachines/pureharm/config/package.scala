@@ -16,6 +16,4 @@
 
 package busymachines.pureharm
 
-package object config extends PureharmCirisAliases with PureharmConfigAllImplicits {
-  type StringConfigDecoder[A] = ConfigDecoder[String, A]
-}
+package object config extends PureharmCirisAliases with PureharmConfigAllImplicits

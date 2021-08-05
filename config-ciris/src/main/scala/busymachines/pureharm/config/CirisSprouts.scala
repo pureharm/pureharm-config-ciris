@@ -36,7 +36,7 @@ trait PureharmCirisSprouts {
 
     def sproutRefined[N](implicit s: RefinedTypeThrow[O, N]): StringConfigDecoder[N] =
       v.mapEither { (cfgKey, value) =>
-        s.newType[Either[Throwable, *]](value).leftMap(thr => ConfigError(s"$cfgKey --> ${thr.toString}"))
+        s.newType[Either[Throwable, *]](value).leftMap(thr => ciris.ConfigError(s"$cfgKey --> ${thr.toString}"))
       }
   }
 }

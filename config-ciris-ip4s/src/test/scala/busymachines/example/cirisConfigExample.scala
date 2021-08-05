@@ -23,13 +23,12 @@ import cats.implicits._
 import busymachines.pureharm.sprout._
 import busymachines.pureharm.config
 
-/** Recommended to do something similar once in your app. To define your prefered
-  * "flavor" of reading configs.
+/** Recommended to do something similar once in your app. To define your prefered "flavor" of reading configs.
   *
-  * In this case we basically explicitely say that we only get config values from environment
-  * variables.
+  * In this case we basically explicitely say that we only get config values from environment variables.
   */
-object myconfig extends config.PureharmConfigAllAliases with config.PureharmConfigAllImplicits {
+object myconfig
+  extends config.PureharmConfigAllAliases with config.PureharmConfigAllImplicits with config.CirisIp4sInstances {
   sealed trait EnvVar
 
   /** Single source of truth for the env vars in the system
@@ -44,7 +43,7 @@ object myconfig extends config.PureharmConfigAllAliases with config.PureharmConf
 
   /** This alias allows us some bit of typesafety in our app
     */
-  def env(s: EnvVar): ConfigValue[String] = ciris.env(s.toString)
+  def env(s: EnvVar): ConfigValue[CirisEffect, String] = ciris.env(s.toString)
 }
 
 /** If it typechecks, ship it!
@@ -99,7 +98,7 @@ object CirisConfigExample {
 
     private object DBConfigLoader extends ConfigLoader[DBConfig] {
 
-      override def configValue: ConfigValue[DBConfig] =
+      override def configValue: ConfigValue[CirisEffect, DBConfig] =
         (
           env(EnvVar.PH_DB_PORT).as[DBPort].default(DBPort(port"5432")),
           env(EnvVar.PH_DB_HOST).as[DBHost].default(DBHost(host"localhost")),
@@ -109,7 +108,7 @@ object CirisConfigExample {
 
     private object ServerConfigLoader extends ConfigLoader[ServerConfig] {
 
-      override def configValue: ConfigValue[ServerConfig] = (
+      override def configValue: ConfigValue[CirisEffect, ServerConfig] = (
         env(EnvVar.PH_DB_PORT).as[ServerPort].default(ServerPort(port"21312")),
         env(EnvVar.PH_DB_HOST).as[ServerHost].default(ServerHost(host"localhost")),
       ).parMapN(ServerConfig.apply)
@@ -117,22 +116,21 @@ object CirisConfigExample {
     }
   }
 
-  /** Instantiate the Config[F] capability once,
-    * pass along everywhere where used.
+  /** Instantiate the Config[F] capability once, pass along everywhere where used.
     */
-  object MyIOApp extends cats.effect.IOApp {
+  object MyIOApp extends cats.effect.IOApp.Simple {
 
-    override def run(args: List[String]): IO[ExitCode] = runF[IO]
+    override def run: IO[Unit] = runF[IO]
 
-    def runF[F[_]: Async: ContextShift]: F[ExitCode] = {
+    def runF[F[_]: Async]: F[Unit] = {
       implicit val config: Config[F] = Config.async[F]
 
       for {
         exampleConfig <- ExampleConfig.load[F]
-        _             <- Async[F].delay(
+        _             <- Async[F].blocking(
           println(s"pass along the $exampleConfig config to the rest of your app in bits and pieces you need")
         )
-      } yield ExitCode.Success
+      } yield ()
     }
   }
 

@@ -16,11 +16,10 @@
 
 package busymachines.pureharm.config
 
-import cats.Applicative
 import cats.effect._
 
 trait ConfigLoader[T] {
-  def configValue: ConfigValue[T]
-  def load[F[_]](implicit c:     Config[F]): F[T] = c.load(configValue)
-  def resource[F[_]](implicit F: Applicative[F], c: Config[F]): Resource[F, T] = Resource.eval(c.load(configValue))
+  def configValue: ConfigValue[CirisEffect, T]
+  def load[F[_]](implicit F:     Config[F]): F[T]           = F.load(configValue)
+  def resource[F[_]](implicit F: Config[F]): Resource[F, T] = Resource.eval(F.load(configValue))
 }

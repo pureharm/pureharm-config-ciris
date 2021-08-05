@@ -16,4 +16,4 @@
 
 package busymachines.pureharm.config
 
-trait PureharmConfigAllImplicits extends PureharmCirisSprouts with CirisIp4sInstances
+trait PureharmConfigAllImplicits extends PureharmCirisSprouts
