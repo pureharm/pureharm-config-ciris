@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # unreleased
 
+# 0.2.0
+
 This release brings cats-effect 3 and Scala 3 support!
 
 - split out `ip4s` support in a seperate module called `pureharm-config-ciris-ip4s`, simply mixin `busymachines.pureharm.config.CirisIp4sInstances` to bring in typeclass instances.
