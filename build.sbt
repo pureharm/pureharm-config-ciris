@@ -32,7 +32,7 @@ val Scala3        = "3.0.1"
 //see: https://github.com/xerial/sbt-sonatype#buildsbt
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
-ThisBuild / baseVersion      := "0.1"
+ThisBuild / baseVersion      := "0.2"
 ThisBuild / organization     := "com.busymachines"
 ThisBuild / organizationName := "BusyMachines"
 ThisBuild / homepage         := Option(url("https://github.com/busymachines/pureharm-config-ciris"))
@@ -70,13 +70,12 @@ ThisBuild / spiewakMainBranches       := List("main")
 ThisBuild / Test / publishArtifact    := false
 
 ThisBuild / scalaVersion       := Scala213
-ThisBuild / crossScalaVersions := List(Scala213)
-// ThisBuild / crossScalaVersions := List(Scala213, Scala3)
+ThisBuild / crossScalaVersions := List(Scala213, Scala3)
 
 //required for binary compat checks
 ThisBuild / versionIntroduced := Map(
-  Scala213 -> "0.1.0"
-  //Scala3 -> "0.1.0",
+  Scala213 -> "0.1.0",
+  Scala3   -> "0.2.0",
 )
 
 //=============================================================================
