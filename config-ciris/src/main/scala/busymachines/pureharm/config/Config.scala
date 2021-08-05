@@ -16,7 +16,7 @@
 
 package busymachines.pureharm.config
 
-import cats.implicits._
+import cats.syntax.all._
 import cats.effect._
 
 /** Capability trait for reading config files.
@@ -26,21 +26,19 @@ import cats.effect._
   * theoretically do arbitrary side-effects.
   */
 sealed trait Config[F[_]] {
-  implicit protected val ctxShift: ContextShift[F]
-  implicit protected val async:    Async[F]
-  def load[T](value: ConfigValue[T]): F[T] = value.load[F]
+  implicit protected[this] val async: Async[F]
+  def load[T](value: ConfigValue[F, T]): F[T] = value.load[F]
 }
 
 object Config {
 
   def apply[F[_]](implicit c: Config[F]): Config[F] = c
 
-  def async[F[_]](implicit F: Async[F], cs: ContextShift[F]): Config[F] = new Config[F] {
-    override protected val async:    Async[F]        = F
-    override protected val ctxShift: ContextShift[F] = cs
+  def async[F[_]](implicit F: Async[F]): Config[F] = new Config[F] {
+    override protected val async: Async[F] = F
   }
 
-  def resource[F[_]](implicit F: Async[F], cs: ContextShift[F]): Resource[F, Config[F]] =
+  def resource[F[_]](implicit F: Async[F]): Resource[F, Config[F]] =
     this.async[F].pure[Resource[F, *]]
 
 }

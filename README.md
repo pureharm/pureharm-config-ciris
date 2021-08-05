@@ -2,21 +2,33 @@
 
 See [changelog](./CHANGELOG.md).
 
+## scala versions
+- 2.13: JVM
+- 3: JVM
+
 ## modules
 
-The available modules are. Available for Scala `2.13`, only on the JVM platform.
+The available modules are.
 
-- `"com.busymachines" %% s"pureharm-config-ciris" % "0.1.0"`. Which has these as its main dependencies:
-  - [ciris](https://github.com/vlovgr/ciris/releases) `1.2.1`
-  - [ip4s](https://github.com/Comcast/ip4s/releases) `2.0.1`
-  - [pureharm-core-sprout](https://github.com/busymachines/pureharm-core/releases) `0.2.0`
-  - [pureharm-core-anomaly](https://github.com/busymachines/pureharm-core/releases) `0.2.0`
+- `"com.busymachines" %% s"pureharm-config-ciris" % "0.2.0"`. Which has these as its main dependencies:
+  - [cats-effect](https://github.com/typelevel/cats-effect) `3.2.1`
+  - [ciris](https://github.com/vlovgr/ciris/releases) `2.1.1`
+  - [ip4s](https://github.com/Comcast/ip4s/releases) `3.0.3`
+  - [pureharm-core-sprout](https://github.com/busymachines/pureharm-core/releases) `0.3.0`
+  - [pureharm-core-anomaly](https://github.com/busymachines/pureharm-core/releases) `0.3.0`
+
+- `"com.busymachines" %% s"pureharm-config-ciris-ip4s" % "0.2.0"`. This module brings in aliases, and `ciris.ConfigDecoder` for ip4s datatypes like `Port`, `Host,` etc. Extremely useful for strongly typed stuff 
+  - [cats-effect](https://github.com/typelevel/cats-effect) `3.2.1`
+  - [ciris](https://github.com/vlovgr/ciris/releases) `2.1.1`
+  - [ip4s](https://github.com/Comcast/ip4s/releases) `3.0.3`
 
 ## usage
 
 The encouraged style to use this library is to create your own "config" package in your app, which contains the opiniated way of doing configs in your application. That's why `pureharm-config-ciris` provides a straightforward way of achieving this, while allowing you to add your own stuff on top.
 
 ```scala
+package busymachines.test
+
 import cats._
 import cats.effect._
 import cats.implicits._
@@ -24,13 +36,12 @@ import cats.implicits._
 import busymachines.pureharm.sprout._
 import busymachines.pureharm.config
 
-/** Recommended to do something similar once in your app. To define your prefered
-  * "flavor" of reading configs.
+/** Recommended to do something similar once in your app. To define your prefered "flavor" of reading configs.
   *
-  * In this case we basically explicitely say that we only get config values from environment
-  * variables.
+  * In this case we basically explicitely say that we only get config values from environment variables.
   */
-object myconfig extends config.PureharmConfigAllAliases with config.PureharmConfigAllImplicits {
+object myconfig
+  extends config.PureharmConfigAllAliases with config.PureharmConfigAllImplicits with config.CirisIp4sInstances {
   sealed trait EnvVar
 
   /** Single source of truth for the env vars in the system
@@ -45,7 +56,7 @@ object myconfig extends config.PureharmConfigAllAliases with config.PureharmConf
 
   /** This alias allows us some bit of typesafety in our app
     */
-  def env(s: EnvVar): ConfigValue[String] = ciris.env(s.toString)
+  def env(s: EnvVar): ConfigValue[CirisEffect, String] = ciris.env(s.toString)
 }
 
 /** If it typechecks, ship it!
@@ -100,7 +111,7 @@ object CirisConfigExample {
 
     private object DBConfigLoader extends ConfigLoader[DBConfig] {
 
-      override def configValue: ConfigValue[DBConfig] =
+      override def configValue: ConfigValue[CirisEffect, DBConfig] =
         (
           env(EnvVar.PH_DB_PORT).as[DBPort].default(DBPort(port"5432")),
           env(EnvVar.PH_DB_HOST).as[DBHost].default(DBHost(host"localhost")),
@@ -110,7 +121,7 @@ object CirisConfigExample {
 
     private object ServerConfigLoader extends ConfigLoader[ServerConfig] {
 
-      override def configValue: ConfigValue[ServerConfig] = (
+      override def configValue: ConfigValue[CirisEffect, ServerConfig] = (
         env(EnvVar.PH_DB_PORT).as[ServerPort].default(ServerPort(port"21312")),
         env(EnvVar.PH_DB_HOST).as[ServerHost].default(ServerHost(host"localhost")),
       ).parMapN(ServerConfig.apply)
@@ -118,22 +129,21 @@ object CirisConfigExample {
     }
   }
 
-  /** Instantiate the Config[F] capability once,
-    * pass along everywhere where used.
+  /** Instantiate the Config[F] capability once, pass along everywhere where used.
     */
-  object MyIOApp extends IOApp {
+  object MyIOApp extends cats.effect.IOApp.Simple {
 
-    override def run(args: List[String]): IO[ExitCode] = runF[IO]
+    override def run: IO[Unit] = runF[IO]
 
-    def runF[F[_]: Async: ContextShift]: F[ExitCode] = {
+    def runF[F[_]: Async]: F[Unit] = {
       implicit val config: Config[F] = Config.async[F]
 
       for {
         exampleConfig <- ExampleConfig.load[F]
-        _             <- Async[F].delay(
+        _             <- Async[F].blocking(
           println(s"pass along the $exampleConfig config to the rest of your app in bits and pieces you need")
         )
-      } yield ExitCode.Success
+      } yield ()
     }
   }
 

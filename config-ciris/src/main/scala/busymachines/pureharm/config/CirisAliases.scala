@@ -17,20 +17,25 @@
 package busymachines.pureharm.config
 
 trait PureharmCirisAliases {
+  final type CirisEffect[A] = ciris.Effect[A]
+
   type ConfigDecoder[A, B] = ciris.ConfigDecoder[A, B]
   val ConfigDecoder: ciris.ConfigDecoder.type = ciris.ConfigDecoder
 
-  type Secret[+A] = ciris.Secret[A]
-  val Secret: ciris.Secret.type = ciris.Secret
+  type StringConfigDecoder[A] = ConfigDecoder[String, A]
+
+  type ConfigValue[+F[_], A] = ciris.ConfigValue[F, A]
+  val ConfigValue: ciris.ConfigValue.type = ciris.ConfigValue
 
   type ConfigError = ciris.ConfigError
   val ConfigError: ciris.ConfigError.type = ciris.ConfigError
 
+  type ConfigException = ciris.ConfigException
+  val ConfigException: ciris.ConfigException.type = ciris.ConfigException
+
   type ConfigKey = ciris.ConfigKey
   val ConfigKey: ciris.ConfigKey.type = ciris.ConfigKey
 
-  type ConfigValue[A] = ciris.ConfigValue[A]
-  val ConfigValue: ciris.ConfigValue.type = ciris.ConfigValue
+  def default[A](value: => A): ConfigValue[CirisEffect, A] = ciris.default(value)
 
-  def default[A](value: => A): ConfigValue[A] = ciris.default(value)
 }

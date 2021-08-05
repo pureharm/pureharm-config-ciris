@@ -21,7 +21,5 @@ trait PureharmConfigAllAliases extends PureharmCirisAliases {
   val Config = _root_.busymachines.pureharm.config.Config
 
   type ConfigLoader[A] = _root_.busymachines.pureharm.config.ConfigLoader[A]
-
-  type StringConfigDecoder[A] = _root_.busymachines.pureharm.config.StringConfigDecoder[A]
   val StringConfigDecoder = _root_.busymachines.pureharm.config.StringConfigDecoder
 }
