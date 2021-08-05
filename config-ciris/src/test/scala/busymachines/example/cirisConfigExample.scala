@@ -23,11 +23,9 @@ import cats.implicits._
 import busymachines.pureharm.sprout._
 import busymachines.pureharm.config
 
-/** Recommended to do something similar once in your app. To define your prefered
-  * "flavor" of reading configs.
+/** Recommended to do something similar once in your app. To define your prefered "flavor" of reading configs.
   *
-  * In this case we basically explicitely say that we only get config values from environment
-  * variables.
+  * In this case we basically explicitely say that we only get config values from environment variables.
   */
 object myconfig extends config.PureharmConfigAllAliases with config.PureharmConfigAllImplicits {
   sealed trait EnvVar
@@ -117,8 +115,7 @@ object CirisConfigExample {
     }
   }
 
-  /** Instantiate the Config[F] capability once,
-    * pass along everywhere where used.
+  /** Instantiate the Config[F] capability once, pass along everywhere where used.
     */
   object MyIOApp extends cats.effect.IOApp {
 

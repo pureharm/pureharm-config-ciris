@@ -21,12 +21,9 @@ import cats.effect._
 
 /** Capability trait for reading config files.
   *
-  * It's preferable to create this _explicitely_
-  * once in your top-most app, and then pass it
-  * along to anywhere where ou need configs to be read
-  * this way, you don't pass _extremely_ powerful
-  * constraints like Async, which can theoretically
-  * do arbitrary side-effects.
+  * It's preferable to create this _explicitely_ once in your top-most app, and then pass it along to anywhere where ou
+  * need configs to be read this way, you don't pass _extremely_ powerful constraints like Async, which can
+  * theoretically do arbitrary side-effects.
   */
 sealed trait Config[F[_]] {
   implicit protected val ctxShift: ContextShift[F]
